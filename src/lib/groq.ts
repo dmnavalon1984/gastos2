@@ -11,10 +11,13 @@ export async function transcribeAudio(
   audioBuffer: Buffer,
   filename = "audio.ogg",
 ): Promise<string> {
-  // Groq SDK acepta File-like objects en Node 20+
-  // Convertir Buffer → Uint8Array para compatibilidad con BlobPart en TS estricto
-  const u8 = new Uint8Array(audioBuffer.buffer, audioBuffer.byteOffset, audioBuffer.byteLength);
-  const file = new File([u8], filename, {
+  // Groq SDK acepta File-like objects en Node 20+.
+  // Crear un ArrayBuffer "puro" (no ArrayBufferLike) para satisfacer BlobPart
+  // bajo TypeScript estricto: el TS lib de DOM marca SharedArrayBuffer como
+  // incompatible con BlobPart. Copiamos los bytes a un buffer nuevo.
+  const arrayBuffer = new ArrayBuffer(audioBuffer.byteLength);
+  new Uint8Array(arrayBuffer).set(audioBuffer);
+  const file = new File([arrayBuffer], filename, {
     type: filename.endsWith(".ogg") ? "audio/ogg" : "audio/mpeg",
   });
 
