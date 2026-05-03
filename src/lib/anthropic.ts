@@ -2,11 +2,18 @@ import Anthropic from "@anthropic-ai/sdk";
 import { SYSTEM_EXTRACT } from "./prompts";
 import type { ExtractedExpense } from "./types";
 
-const client = new Anthropic({
-  apiKey: process.env.ANTHROPIC_API_KEY!,
-});
+// Lazy init: el cliente se crea on-demand, no al cargar el módulo.
+// Esto permite que el build de Next.js pase sin tener las env vars.
+let _client: Anthropic | null = null;
+function getClient(): Anthropic {
+  if (_client) return _client;
+  const apiKey = process.env.ANTHROPIC_API_KEY;
+  if (!apiKey) throw new Error("ANTHROPIC_API_KEY no configurada");
+  _client = new Anthropic({ apiKey });
+  return _client;
+}
 
-const MODEL = process.env.ANTHROPIC_MODEL || "claude-haiku-4-5-20251001";
+const MODEL = () => process.env.ANTHROPIC_MODEL || "claude-haiku-4-5-20251001";
 
 /**
  * Extrae datos estructurados desde un texto (notificación reenviada,
@@ -26,8 +33,8 @@ export async function extractFromText(
 
   const system = SYSTEM_EXTRACT.replace("{{REGLAS_APRENDIDAS}}", reglasText);
 
-  const resp = await client.messages.create({
-    model: MODEL,
+  const resp = await getClient().messages.create({
+    model: MODEL(),
     max_tokens: 600,
     system,
     messages: [
@@ -59,8 +66,8 @@ export async function extractFromImage(
 
   const system = SYSTEM_EXTRACT.replace("{{REGLAS_APRENDIDAS}}", reglasText);
 
-  const resp = await client.messages.create({
-    model: MODEL,
+  const resp = await getClient().messages.create({
+    model: MODEL(),
     max_tokens: 600,
     system,
     messages: [
@@ -100,8 +107,8 @@ export async function generateMonthlyInsights(payload: {
 }): Promise<string> {
   const { SYSTEM_INSIGHTS_MENSUAL } = await import("./prompts");
 
-  const resp = await client.messages.create({
-    model: MODEL,
+  const resp = await getClient().messages.create({
+    model: MODEL(),
     max_tokens: 800,
     system: SYSTEM_INSIGHTS_MENSUAL,
     messages: [
