@@ -45,3 +45,6 @@ next-env.d.ts
 
 # Secretos en docs (no commitear)
 docs/VERCEL-ENV-VARS.md
+
+# Vercel CLI token (aislado por proyecto)
+.vercel-token
