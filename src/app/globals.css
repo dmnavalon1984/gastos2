@@ -1,0 +1,23 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  color-scheme: dark;
+}
+
+body {
+  font-family: ui-sans-serif, system-ui, -apple-system, "SF Pro Display", "Inter", sans-serif;
+}
+
+.card {
+  @apply bg-slate-900/60 border border-slate-800 rounded-xl p-5;
+}
+
+.metric-label {
+  @apply text-xs uppercase tracking-wider text-slate-400 font-medium;
+}
+
+.metric-value {
+  @apply text-3xl font-bold text-white mt-1;
+}
