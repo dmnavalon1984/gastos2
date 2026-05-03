@@ -12,7 +12,9 @@ export async function transcribeAudio(
   filename = "audio.ogg",
 ): Promise<string> {
   // Groq SDK acepta File-like objects en Node 20+
-  const file = new File([audioBuffer], filename, {
+  // Convertir Buffer → Uint8Array para compatibilidad con BlobPart en TS estricto
+  const u8 = new Uint8Array(audioBuffer.buffer, audioBuffer.byteOffset, audioBuffer.byteLength);
+  const file = new File([u8], filename, {
     type: filename.endsWith(".ogg") ? "audio/ogg" : "audio/mpeg",
   });
 
